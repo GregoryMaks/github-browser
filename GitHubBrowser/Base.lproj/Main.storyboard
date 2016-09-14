@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--Navigation Controller-->
+        <scene sceneID="Ks1-c6-eVp">
+            <objects>
+                <navigationController storyboardIdentifier="RootNavigationControllerIdentifier" id="uiv-5F-1Ml" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="0lD-Yy-1Hw">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="eQP-5U-WCn" kind="relationship" relationship="rootViewController" id="jp1-1E-j80"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dV1-wy-uZG" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-373" y="157"/>
+        </scene>
+        <!--User List View Controller-->
+        <scene sceneID="xWc-B8-5nc">
+            <objects>
+                <tableViewController storyboardIdentifier="UserListViewControllerIdentifier" id="eQP-5U-WCn" customClass="UserListViewController" customModule="GitHubBrowser" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="122" sectionHeaderHeight="28" sectionFooterHeight="28" id="fxE-w6-LKe">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="UserListTableViewCell" rowHeight="121" id="N8P-Tg-40X" customClass="UserListTableViewCell" customModule="GitHubBrowser" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="92" width="600" height="121"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="N8P-Tg-40X" id="hZA-0S-ptM">
+                                    <rect key="frame" x="0.0" y="0.0" width="567" height="120"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="8oP-uE-yD9">
+                                            <rect key="frame" x="8" y="10" width="100" height="100"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="100" id="2S6-Wf-tGb"/>
+                                                <constraint firstAttribute="height" constant="100" id="VjR-K8-ZPh"/>
+                                            </constraints>
+                                        </imageView>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Github username" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2qQ-vs-B4k">
+                                            <rect key="frame" x="116" y="8" width="111" height="17"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="http://github.url" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kkI-yf-T6N">
+                                            <rect key="frame" x="116" y="33" width="102" height="17"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                            <color key="textColor" red="0.41568627450000001" green="0.41568627450000001" blue="0.41568627450000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="kkI-yf-T6N" firstAttribute="leading" secondItem="8oP-uE-yD9" secondAttribute="trailing" constant="8" id="4SF-cv-6FN"/>
+                                        <constraint firstItem="8oP-uE-yD9" firstAttribute="top" secondItem="hZA-0S-ptM" secondAttribute="topMargin" constant="2" id="4xy-ZT-Sav"/>
+                                        <constraint firstAttribute="bottomMargin" secondItem="8oP-uE-yD9" secondAttribute="bottom" constant="2" id="7Tc-6A-b0E"/>
+                                        <constraint firstItem="kkI-yf-T6N" firstAttribute="top" secondItem="2qQ-vs-B4k" secondAttribute="bottom" constant="8" id="SYc-mP-aTp"/>
+                                        <constraint firstAttribute="topMargin" secondItem="2qQ-vs-B4k" secondAttribute="top" id="Xiw-ff-cad"/>
+                                        <constraint firstAttribute="leadingMargin" secondItem="8oP-uE-yD9" secondAttribute="leading" id="cLM-Zy-bAG"/>
+                                        <constraint firstItem="2qQ-vs-B4k" firstAttribute="leading" secondItem="8oP-uE-yD9" secondAttribute="trailing" constant="8" id="y0h-5M-dqG"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="urlLabel" destination="kkI-yf-T6N" id="sV4-XI-yL8"/>
+                                    <outlet property="userAvatarImageView" destination="8oP-uE-yD9" id="akC-7w-P9H"/>
+                                    <outlet property="usernameLabel" destination="2qQ-vs-B4k" id="9Ha-jS-FDa"/>
+                                </connections>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="eQP-5U-WCn" id="duj-tK-WJW"/>
+                            <outlet property="delegate" destination="eQP-5U-WCn" id="Rj6-PA-Gh5"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" id="833-T4-OCK"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="3b6-eM-H1E" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="374" y="157"/>
+        </scene>
+    </scenes>
+</document>

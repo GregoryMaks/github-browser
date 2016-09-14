@@ -1,0 +1,23 @@
+//
+//  UserListModelType.swift
+//  GitHubBrowser
+//
+//  Created by GregoryM on 9/13/16.
+//  Copyright © 2016 None. All rights reserved.
+//
+
+import Foundation
+
+protocol UserListModelType {
+    
+    var listTitle: String { get }
+    var username: String? { get }
+    var previousUsersList: [String] { get }
+    
+    /// - Parameter username: represents user whose followers we'd like to show, may be nil to show all root users
+    /// - Parameter previousUsersList: is the user list from which we got to this step, designated to track the history of steps
+    init (username: String?, previousUsersList: [String])
+    
+    func numberOfRowsInTableView () -> Int
+    func modelForRow (atIndexPath indexPath:NSIndexPath) -> GithubUserModel
+}
