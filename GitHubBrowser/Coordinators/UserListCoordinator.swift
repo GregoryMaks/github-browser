@@ -15,6 +15,8 @@ class UserListCoordinator: Coordinator {
     var navigationController: UINavigationController?
     var userListVC: UserListViewController?
     
+    var followersUserListCoordinator: UserListCoordinator?
+    
     init (window: UIWindow) {
         self.window = window
     }
@@ -24,7 +26,7 @@ class UserListCoordinator: Coordinator {
         diContainer.registerForStoryboard(UserListViewController.self) { resolver, viewController in
             viewController.viewModel = resolver.resolve(UserListModelType.self)
             
-            // TODO rewrite, kingfisher??
+            // TODO rewrite, kingfisher for image loading??
             viewController.dependencyContainer = Container()
             viewController.dependencyContainer?.register(AsyncImageLoadingServiceType.self) {
                 _ in AsyncImageLoadingService()
@@ -33,10 +35,12 @@ class UserListCoordinator: Coordinator {
         diContainer.register(GithubUserServiceType.self) {
             _ in GithubUserService()
         }
-        diContainer.register(UserListModelType.self) {
-            resolver in UserListModel(userService: resolver.resolve(GithubUserServiceType.self)!)
+        diContainer.register(UserListModelType.self) { (resolver) in
+            let viewModel = UserListModel(userService: resolver.resolve(GithubUserServiceType.self)!)
+            viewModel.coordinatorDelegate = self
+            return viewModel
         }
-        
+
         let storyboard = SwinjectStoryboard.create(name:"Main", bundle:NSBundle.mainBundle(), container: diContainer);
         
         self.navigationController = (storyboard.instantiateViewControllerWithIdentifier("RootNavigationControllerIdentifier") as! UINavigationController)
@@ -46,4 +50,12 @@ class UserListCoordinator: Coordinator {
     }
 }
 
+extension UserListCoordinator : UserListModelCoordinatorDelegate {
 
+    func userListViewModelShouldNavigateToFollowers (ofUser username: String, previousUsersList: [String]?) {
+
+        print("push new controller for \(username)")
+//        self.followersUserListCoordinator = UserListCoordinator(window: self.window)
+//        self.followersUserListCoordinator!.start()
+    }
+}

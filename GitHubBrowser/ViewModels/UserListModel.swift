@@ -14,12 +14,12 @@ class UserListModel: UserListModelType {
     
     var username: String?
     var previousUsersList: [String]?
-    
     var listTitle: String {
         get {
             return username ?? "GitHub users"
         }
     }
+    weak var coordinatorDelegate: UserListModelCoordinatorDelegate?
     
     private var userService: GithubUserServiceType
     private var userFollowersUrl: NSURL?
@@ -60,6 +60,13 @@ class UserListModel: UserListModelType {
             .map({ (models) -> Bool in
                 return true
             });
+    }
+    
+    func selectRow (atIndexPath indexPath:NSIndexPath) {
+        if let userModel = self.modelForRow(atIndexPath: indexPath) {
+            self.coordinatorDelegate?.userListViewModelShouldNavigateToFollowers(ofUser: userModel.username,
+                                                                                 previousUsersList: self.previousUsersList)
+        }
     }
 }
 

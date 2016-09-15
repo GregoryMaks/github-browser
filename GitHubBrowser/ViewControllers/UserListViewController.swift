@@ -34,7 +34,8 @@ class UserListViewController: UITableViewController {
                 },
                 onError: { (error) in
                     print("Error while retrieving users, \(error)")
-            })
+                }
+            )
             .addDisposableTo(self.disposeBag)
     }
 
@@ -69,6 +70,6 @@ extension UserListViewController {
 extension UserListViewController {
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        print("row tapped")
+        self.viewModel!.selectRow(atIndexPath: indexPath)
     }
 }

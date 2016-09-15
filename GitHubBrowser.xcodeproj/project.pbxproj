@@ -18,6 +18,7 @@
 		932337491D89BAA500295213 /* GithubUserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932337481D89BAA500295213 /* GithubUserService.swift */; };
 		9323374B1D89BAC400295213 /* GithubUserServiceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9323374A1D89BAC400295213 /* GithubUserServiceType.swift */; };
 		9323374D1D8AC8B600295213 /* UserListModelError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9323374C1D8AC8B600295213 /* UserListModelError.swift */; };
+		932337511D8AE47E00295213 /* UserListModelCoordinatorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932337501D8AE47E00295213 /* UserListModelCoordinatorDelegate.swift */; };
 		932C52161D8967EB00E59763 /* GithubUserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932C52151D8967EB00E59763 /* GithubUserModel.swift */; };
 		93724D121D8736D8008BEF92 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93724D111D8736D8008BEF92 /* AppDelegate.swift */; };
 		93724D171D8736D8008BEF92 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 93724D151D8736D8008BEF92 /* Main.storyboard */; };
@@ -51,6 +52,7 @@
 		932337481D89BAA500295213 /* GithubUserService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GithubUserService.swift; sourceTree = "<group>"; };
 		9323374A1D89BAC400295213 /* GithubUserServiceType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GithubUserServiceType.swift; sourceTree = "<group>"; };
 		9323374C1D8AC8B600295213 /* UserListModelError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserListModelError.swift; sourceTree = "<group>"; };
+		932337501D8AE47E00295213 /* UserListModelCoordinatorDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserListModelCoordinatorDelegate.swift; sourceTree = "<group>"; };
 		932C52151D8967EB00E59763 /* GithubUserModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GithubUserModel.swift; sourceTree = "<group>"; };
 		93724D0E1D8736D8008BEF92 /* GitHubBrowser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GitHubBrowser.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		93724D111D8736D8008BEF92 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -161,6 +163,7 @@
 				9318433C1D8883CC00D2C1FB /* UserListModel.swift */,
 				93A176261D888CEE0060D2AD /* UserListModelType.swift */,
 				9323374C1D8AC8B600295213 /* UserListModelError.swift */,
+				932337501D8AE47E00295213 /* UserListModelCoordinatorDelegate.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -414,6 +417,7 @@
 				932337491D89BAA500295213 /* GithubUserService.swift in Sources */,
 				931843371D874DD500D2C1FB /* UserListViewController.swift in Sources */,
 				932337471D89A38F00295213 /* AsyncImageLoadingServiceType.swift in Sources */,
+				932337511D8AE47E00295213 /* UserListModelCoordinatorDelegate.swift in Sources */,
 				93A176291D8960DC0060D2AD /* UserListTableViewCell.swift in Sources */,
 				9318433B1D88456C00D2C1FB /* UserListCoordinator.swift in Sources */,
 				931843311D87425000D2C1FB /* AppCoordinator.swift in Sources */,
