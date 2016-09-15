@@ -23,13 +23,18 @@ class UserListCoordinator: Coordinator {
         let diContainer = Container()
         diContainer.registerForStoryboard(UserListViewController.self) { resolver, viewController in
             viewController.viewModel = resolver.resolve(UserListModelType.self)
+            
+            // TODO rewrite, kingfisher??
             viewController.dependencyContainer = Container()
             viewController.dependencyContainer?.register(AsyncImageLoadingServiceType.self) {
                 _ in AsyncImageLoadingService()
             }
         }
+        diContainer.register(GithubUserServiceType.self) {
+            _ in GithubUserService()
+        }
         diContainer.register(UserListModelType.self) {
-            _ in UserListModel()
+            resolver in UserListModel(userService: resolver.resolve(GithubUserServiceType.self)!)
         }
         
         let storyboard = SwinjectStoryboard.create(name:"Main", bundle:NSBundle.mainBundle(), container: diContainer);

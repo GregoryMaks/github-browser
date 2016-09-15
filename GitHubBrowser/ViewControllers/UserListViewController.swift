@@ -8,11 +8,14 @@
 
 import UIKit
 import Swinject
+import RxSwift
 
 class UserListViewController: UITableViewController {
     
     var viewModel: UserListModelType?
     var dependencyContainer: Container? // TODO: i don't like this as nobody knows what services are required to handle
+    
+    let disposeBag = DisposeBag()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,6 +26,16 @@ class UserListViewController: UITableViewController {
         self.tableView.estimatedRowHeight = 100
         
         self.title = self.viewModel!.listTitle
+        
+        self.viewModel!.updateUserList()
+            .subscribe(
+                onNext: { (result) in
+                    self.tableView.reloadData()
+                },
+                onError: { (error) in
+                    print("Error while retrieving users, \(error)")
+            })
+            .addDisposableTo(self.disposeBag)
     }
 
     override func didReceiveMemoryWarning() {
@@ -44,8 +57,9 @@ extension UserListViewController {
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = self.tableView!.dequeueReusableCellWithIdentifier(String(UserListTableViewCell)) as! UserListTableViewCell
         
-        let model = self.viewModel!.modelForRow(atIndexPath: indexPath)
-        cell.setDataFromModel(model, imageLoadingService: dependencyContainer!.resolve(AsyncImageLoadingServiceType.self)!)
+        if let model = self.viewModel!.modelForRow(atIndexPath: indexPath) {
+            cell.setDataFromModel(model, imageLoadingService: dependencyContainer!.resolve(AsyncImageLoadingServiceType.self)!)
+        }
         
         return cell
     }
