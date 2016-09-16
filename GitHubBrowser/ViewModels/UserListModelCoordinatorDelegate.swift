@@ -10,5 +10,6 @@ import UIKit
 
 protocol UserListModelCoordinatorDelegate: class {
     
+    // TODO: add model here to verify that call came from correct user model in coordinator
     func userListViewModelShouldNavigateToFollowers (ofUser userModel: GithubUserModel)
 }
