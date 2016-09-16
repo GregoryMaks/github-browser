@@ -13,7 +13,9 @@ class UserListCoordinator: Coordinator {
  
     var window: UIWindow
     var navigationController: UINavigationController?
-    var userListVC: UserListViewController?
+    
+    var previousListVC: UserListViewController?
+    var currentUserListVC: UserListViewController?
     
     var followersUserListCoordinator: UserListCoordinator?
     
@@ -44,7 +46,7 @@ class UserListCoordinator: Coordinator {
         let storyboard = SwinjectStoryboard.create(name:"Main", bundle:NSBundle.mainBundle(), container: diContainer);
         
         self.navigationController = (storyboard.instantiateViewControllerWithIdentifier("RootNavigationControllerIdentifier") as! UINavigationController)
-        self.userListVC = (self.navigationController?.topViewController as? UserListViewController)
+        self.currentUserListVC = (self.navigationController?.topViewController as? UserListViewController)
         
         self.window.rootViewController = self.navigationController;
     }
@@ -52,10 +54,16 @@ class UserListCoordinator: Coordinator {
 
 extension UserListCoordinator : UserListModelCoordinatorDelegate {
 
-    func userListViewModelShouldNavigateToFollowers (ofUser username: String, previousUsersList: [String]?) {
+    func userListViewModelShouldNavigateToFollowers (ofUser userModel: GithubUserModel) {
 
-        print("push new controller for \(username)")
+        print("push new controller for \(userModel.username)")
 //        self.followersUserListCoordinator = UserListCoordinator(window: self.window)
 //        self.followersUserListCoordinator!.start()
+    }
+}
+
+private extension UserListCoordinator {
+    
+    func pushUserListViewVC (ofUser userModel: GithubUserModel) {
     }
 }

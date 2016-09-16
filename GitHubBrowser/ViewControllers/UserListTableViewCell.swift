@@ -19,7 +19,7 @@ class UserListTableViewCell: UITableViewCell {
     
     func setDataFromModel (model: GithubUserModel, imageLoadingService: AsyncImageLoadingServiceType) {
         self.usernameLabel.text = model.username
-        self.urlLabel.text = model.githubLink?.absoluteString
+        self.urlLabel.text = model.githubLink.absoluteString
         
         self.imageLoadingService = imageLoadingService
         self.avatarImageUrl = model.avatarUrl

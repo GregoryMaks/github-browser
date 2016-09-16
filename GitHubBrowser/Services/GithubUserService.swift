@@ -108,19 +108,23 @@ private extension GithubUserService {
         var models = [GithubUserModel]()
         for rawUser in rawUsers {
             if  let username = rawUser["login"] as? String,
-                let id = rawUser["id"] as? Int {
+                let id = rawUser["id"] as? Int,
+                let githubLinkString = rawUser["html_url"] as? String,
+                let followersLinkString = rawUser["followers_url"] as? String {
                 
                 let avatarUrl = rawUser["avatar_url"] as? String
-                let githubLink = rawUser["html_url"] as? String
-                let followersLink = rawUser["followers_url"] as? String
                 
-                let model = GithubUserModel(id: id,
-                                            username: username,
-                                            avatarUrl: avatarUrl != nil ? NSURL(string: avatarUrl!) : nil,
-                                            githubLink: githubLink != nil ? NSURL(string: githubLink!) : nil,
-                                            followersLink: followersLink != nil ? NSURL(string: followersLink!) : nil)
-                
-                models.append(model)
+                if  let githubLink = NSURL(string: githubLinkString),
+                    let followersLink = NSURL(string: followersLinkString) {
+                    
+                    let model = GithubUserModel(id: id,
+                                                username: username,
+                                                avatarUrl: avatarUrl != nil ? NSURL(string: avatarUrl!) : nil,
+                                                githubLink: githubLink,
+                                                followersLink: followersLink)
+                    
+                    models.append(model)
+                }
             }
         }
         

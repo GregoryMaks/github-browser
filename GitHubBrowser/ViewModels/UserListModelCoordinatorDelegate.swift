@@ -10,5 +10,5 @@ import UIKit
 
 protocol UserListModelCoordinatorDelegate: class {
     
-    func userListViewModelShouldNavigateToFollowers (ofUser username: String, previousUsersList: [String]?)
+    func userListViewModelShouldNavigateToFollowers (ofUser userModel: GithubUserModel)
 }

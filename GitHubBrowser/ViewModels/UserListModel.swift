@@ -12,38 +12,37 @@ import RxSwift
 
 class UserListModel: UserListModelType {
     
-    var username: String?
-    var previousUsersList: [String]?
+    var userModel: GithubUserModel?
+    var previousUsersModels: [GithubUserModel]?
     var listTitle: String {
         get {
-            return username ?? "GitHub users"
+            return userModel?.username ?? "GitHub users"
         }
     }
     weak var coordinatorDelegate: UserListModelCoordinatorDelegate?
     
     private var userService: GithubUserServiceType
-    private var userFollowersUrl: NSURL?
-    private var userModels: [GithubUserModel]?
+    private var followerUsersModels: [GithubUserModel]?
     
-    required init (userService: GithubUserServiceType, username: String? = nil, previousUsersList: [String]? = nil) {
-        self.username = username
-        self.previousUsersList = previousUsersList
+    required init (userService: GithubUserServiceType, userModel: GithubUserModel? = nil, previousUsersModels: [GithubUserModel]? = nil) {
+        self.userModel = userModel
+        self.previousUsersModels = previousUsersModels
         
         self.userService = userService
     }
     
     func numberOfRowsInTableView () -> Int {
-        return self.userModels != nil ? self.userModels!.count : 0;
+        return self.followerUsersModels != nil ? self.followerUsersModels!.count : 0;
     }
     
     func modelForRow (atIndexPath indexPath:NSIndexPath) -> GithubUserModel? {
-        return self.userModels?[indexPath.row];
+        return self.followerUsersModels?[indexPath.row];
     }
     
     func updateUserList () -> Observable<Bool> {
         return self.retrieveUserListPart(nil, itemsPerPage: GithubUserServiceBatchSize.Default)
             .doOnNext({ (models) in
-                self.userModels = models
+                self.followerUsersModels = models
             })
             .map({ (models) -> Bool in
                 return true
@@ -51,11 +50,11 @@ class UserListModel: UserListModelType {
     }
     
     func loadMoreUsers () -> Observable<Bool> {
-        let lastUserId: Int? = self.userModels?.last?.id
+        let lastUserId: Int? = self.followerUsersModels?.last?.id
         
         return self.retrieveUserListPart(lastUserId, itemsPerPage: GithubUserServiceBatchSize.Default)
             .doOnNext({ (models) in
-                self.userModels?.appendContentsOf(models)
+                self.followerUsersModels?.appendContentsOf(models)
             })
             .map({ (models) -> Bool in
                 return true
@@ -64,8 +63,7 @@ class UserListModel: UserListModelType {
     
     func selectRow (atIndexPath indexPath:NSIndexPath) {
         if let userModel = self.modelForRow(atIndexPath: indexPath) {
-            self.coordinatorDelegate?.userListViewModelShouldNavigateToFollowers(ofUser: userModel.username,
-                                                                                 previousUsersList: self.previousUsersList)
+            self.coordinatorDelegate?.userListViewModelShouldNavigateToFollowers(ofUser: userModel)
         }
     }
 }
@@ -75,7 +73,7 @@ private extension UserListModel {
     func retrieveUserListPart (sinceId: Int?, itemsPerPage: GithubUserServiceBatchSize) -> Observable<[GithubUserModel]> {
         return Observable.create({ (observer: AnyObserver<[GithubUserModel]>) -> Disposable in
             
-            if (self.username == nil) {
+            if (self.userModel?.username == nil) {
                 self.userService.retrieveGlobalUserList(sinceId, itemsPerPage: itemsPerPage) { (models, error) in
                     guard (error == nil) else {
                         observer.on(.Error(error!))
@@ -91,55 +89,24 @@ private extension UserListModel {
                 }
             }
             else {
-                self.followersUrlForUser(self.username!, completionHandler: { (followersUrl, error) in
-                    guard error == nil else {
-                        observer.on(.Error(error!))
-                        return
-                    }
-                    
-                    self.userService.retrieveFollowersList(followersUrl!,
-                        sinceId: sinceId,
-                        itemsPerPage: itemsPerPage,
-                        completionHandler: { (models, error) in
-                            guard (error == nil) else {
-                                observer.on(.Error(UserListModelError.InnerError(error!)))
-                                return
-                            }
-                            guard models != nil else {
-                                observer.on(.Error(UserListModelError.EmptyData))
-                                return
-                            }
-                            
-                            observer.on(.Next(models!))
-                    })
+                self.userService.retrieveFollowersList(self.userModel!.followersLink,
+                    sinceId: sinceId,
+                    itemsPerPage: itemsPerPage,
+                    completionHandler: { (models, error) in
+                        guard (error == nil) else {
+                            observer.on(.Error(UserListModelError.InnerError(error!)))
+                            return
+                        }
+                        guard models != nil else {
+                            observer.on(.Error(UserListModelError.EmptyData))
+                            return
+                        }
+                        
+                        observer.on(.Next(models!))
                 })
             }
             
             return NopDisposable.instance
         })
-    }
-    
-    func followersUrlForUser (username: String, completionHandler: (followersUrl: NSURL?, error: UserListModelError?) -> Void) -> Void {
-        
-        if (self.userFollowersUrl != nil) {
-            completionHandler(followersUrl: self.userFollowersUrl, error: nil)
-        }
-        else {
-            self.userService.retreiveUserData(self.username!, completionHandler: { (userModel, error) in
-                guard (error == nil) else {
-                    completionHandler(followersUrl: nil, error: UserListModelError.InnerError(error!))
-                    return
-                }
-                
-                let followersUrl = userModel?.followersLink
-                guard (followersUrl != nil) else {
-                    completionHandler(followersUrl: nil, error: UserListModelError.EmptyData)
-                    return
-                }
-            
-                self.userFollowersUrl = followersUrl
-                completionHandler(followersUrl: self.userFollowersUrl, error: nil)
-            })
-        }
     }
 }

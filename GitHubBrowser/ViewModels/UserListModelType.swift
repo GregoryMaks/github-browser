@@ -12,15 +12,15 @@ import RxSwift
 protocol UserListModelType {
     
     var listTitle: String { get }
-    var username: String? { get }
-    var previousUsersList: [String]? { get }
+    var userModel: GithubUserModel? { get }
+    var previousUsersModels: [GithubUserModel]? { get }
     
     weak var coordinatorDelegate: UserListModelCoordinatorDelegate? { get set }
     
     /// - Parameter userService: point for DI
-    /// - Parameter username: represents user whose followers we'd like to show, may be nil to show all root users
-    /// - Parameter previousUsersList: is the user list from which we got to this step, designated to track the history of steps
-    init (userService: GithubUserServiceType, username: String?, previousUsersList: [String]?)
+    /// - Parameter userModel: represents user whose followers we'd like to show, may be nil to show all root users
+    /// - Parameter previousUsersModels: is the user list from which we got to this step, designated to track the history of steps, ordered from the oldest user to the recent one. Does not include user transferred in <a>userModel</a> param
+    init (userService: GithubUserServiceType, userModel: GithubUserModel?, previousUsersModels: [GithubUserModel]?)
     
     func numberOfRowsInTableView () -> Int
     func modelForRow (atIndexPath indexPath:NSIndexPath) -> GithubUserModel?
