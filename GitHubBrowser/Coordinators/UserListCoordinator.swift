@@ -9,24 +9,30 @@
 import UIKit
 import Swinject
 
-class UserListCoordinator: Coordinator {
+class UserListCoordinator: NSObject, Coordinator {
  
     var window: UIWindow
-    var storyboardDIContainer: Container
-    var storyboard: SwinjectStoryboard?
+    private var storyboardDIContainer: Container?
+    private var storyboard: SwinjectStoryboard?
     
-    var navigationController: UINavigationController?
+    private var originalNavigationBarDelegate: UINavigationBarDelegate?
+    private var navigationController: UINavigationController?
     
-    var previousListVC: UserListViewController?
-    var currentUserListVC: UserListViewController?
+    private var previousUserListVC: UserListViewController?
+    private var currentUserListVC: UserListViewController?
     
-    var followersUserListCoordinator: UserListCoordinator?
+    /// Holds all users that were visited prior to current user (current user in not included in the list)
+    private var userModelsVisitHistory: [GithubUserModel]
     
-    init (window: UIWindow) {
+    
+    required init (window: UIWindow) {
         self.window = window
+        self.userModelsVisitHistory = [GithubUserModel]()
+        
+        super.init()
         
         self.storyboardDIContainer = Container()
-        self.storyboardDIContainer.registerForStoryboard(UserListViewController.self) { resolver, viewController in
+        self.storyboardDIContainer!.registerForStoryboard(UserListViewController.self) { resolver, viewController in
             viewController.viewModel = resolver.resolve(UserListModelType.self)
             
             // TODO rewrite, kingfisher for image loading??
@@ -35,21 +41,28 @@ class UserListCoordinator: Coordinator {
                 _ in AsyncImageLoadingService()
             }
         }
-        self.storyboardDIContainer.register(GithubUserServiceType.self) {
+        self.storyboardDIContainer!.register(GithubUserServiceType.self) {
             _ in GithubUserService()
         }
-        self.storyboardDIContainer.register(UserListModelType.self) { (resolver) in
+        
+        // TODO: do I need it? Even if self is :NSObject
+        weak var weakSelf: UserListCoordinator? = self
+        self.storyboardDIContainer!.register(UserListModelType.self) { (resolver) in
             let viewModel = UserListModel(userService: resolver.resolve(GithubUserServiceType.self)!)
-            viewModel.coordinatorDelegate = self
+            viewModel.coordinatorDelegate = weakSelf
             return viewModel
         }
         
-        self.storyboard = SwinjectStoryboard.create(name:"Main", bundle:NSBundle.mainBundle(), container: self.storyboardDIContainer);
+        self.storyboard = SwinjectStoryboard.create(name:"Main", bundle:NSBundle.mainBundle(), container: self.storyboardDIContainer!);
     }
     
     func start() {
         self.navigationController = (self.storyboard!.instantiateViewControllerWithIdentifier("RootNavigationControllerIdentifier") as! UINavigationController)
         self.currentUserListVC = (self.navigationController?.topViewController as? UserListViewController)
+        
+        // Special hack to normalize navigationBar animation, don't like this, but who does
+        self.originalNavigationBarDelegate = self.navigationController?.navigationBar.delegate
+        self.navigationController?.navigationBar.delegate = self
         
         self.window.rootViewController = self.navigationController;
     }
@@ -62,45 +75,78 @@ extension UserListCoordinator : UserListModelCoordinatorDelegate {
     }
 }
 
+// TODO: can this be optimized by using delegate proxy or method forwarding? Research.
+extension UserListCoordinator : UINavigationBarDelegate {
+    
+    func navigationBar(navigationBar: UINavigationBar, shouldPushItem item: UINavigationItem) -> Bool {
+        return self.originalNavigationBarDelegate?.navigationBar?(navigationBar, shouldPushItem: item) ?? true
+    }
+    func navigationBar(navigationBar: UINavigationBar, didPushItem item: UINavigationItem) {
+        self.originalNavigationBarDelegate?.navigationBar?(navigationBar, didPushItem: item)
+    }
+    func navigationBar(navigationBar: UINavigationBar, shouldPopItem item: UINavigationItem) -> Bool {
+        return self.originalNavigationBarDelegate?.navigationBar?(navigationBar, shouldPopItem: item) ?? true
+    }
+    
+    func navigationBar(navigationBar: UINavigationBar, didPopItem item: UINavigationItem) {
+        self.originalNavigationBarDelegate?.navigationBar?(navigationBar, didPopItem: item)
+        
+        self.processTopmostUserListVCPop()
+    }
+}
+
 private extension UserListCoordinator {
     
     func pushUserListViewVC (ofUser newUserModel: GithubUserModel) {
         print("push new controller for \(newUserModel.username)")
         
-        self.previousListVC = self.currentUserListVC
+        if let currentUser = self.currentUserListVC!.viewModel!.userModel {
+            self.userModelsVisitHistory.append(currentUser)
+        }
         
-        let previousUser = self.previousListVC!.viewModel!.userModel
-        let userVisitHistory = self.previousListVC!.viewModel!.previousUsersModels
-        let newUserListVC = self.createUserListVCForNewUser(newUser: newUserModel,
-                                                            previousUser: previousUser,
-                                                            previousUserModelsHistory: userVisitHistory)
+        let newUserListVC = self.createUserListVCForNewUser(newUser: newUserModel)
         
+        self.previousUserListVC = self.currentUserListVC
         self.currentUserListVC = newUserListVC
         
-        self.navigationController?.pushViewController(self.currentUserListVC!, animated: true)
+        self.navigationController?.setViewControllers([self.previousUserListVC!, self.currentUserListVC!], animated: true)
     }
     
-    func popTopmostUserListVC () {
-        // TODO
+    func processTopmostUserListVCPop () {
+        print("pop view controller")
+        
+        // Pop already occured, processing changes
+        self.currentUserListVC = self.previousUserListVC
+        
+        if (self.userModelsVisitHistory.count == 0) {
+            // Nowhere to pop afterwards, we're at the very bottom
+            self.previousUserListVC = nil;
+        }
+        else {
+            // Current UserListVC will contain this user, remove it
+            self.userModelsVisitHistory.removeLast()
+            
+            let historyPredecessorUser = self.userModelsVisitHistory.last
+            let historyCreatedUserListVC = self.createUserListVCForNewUser(newUser: historyPredecessorUser)
+            
+            self.currentUserListVC = self.previousUserListVC;
+            self.previousUserListVC = historyCreatedUserListVC;
+        }
+        
+        var viewControllers = [UIViewController]()
+        if (self.previousUserListVC != nil) {
+            viewControllers.append(self.previousUserListVC!)
+        }
+        viewControllers.append(self.currentUserListVC!)
+        
+        self.navigationController?.setViewControllers(viewControllers, animated: false)
     }
     
-    func createUserListVCForNewUser (newUser      newUserModel: GithubUserModel,
-                                     previousUser previousUserModel: GithubUserModel?,
-                                                  previousUserModelsHistory: [GithubUserModel]?) -> UserListViewController {
+    func createUserListVCForNewUser (newUser newUserModel: GithubUserModel?) -> UserListViewController {
         
-        // Constructing user history
-        var userVisitHistory = [GithubUserModel]()
-        if let previousUsersModels = self.previousListVC!.viewModel!.previousUsersModels {
-            userVisitHistory.appendContentsOf(previousUsersModels)
-        }
-        if let previousUser = self.previousListVC!.viewModel!.userModel {
-            userVisitHistory.append(previousUser)
-        }
-        
-        self.storyboardDIContainer.register(UserListModelType.self) { (resolver) in
+        self.storyboardDIContainer!.register(UserListModelType.self) { (resolver) in
             let viewModel = UserListModel(userService: resolver.resolve(GithubUserServiceType.self)!,
-                                          userModel: newUserModel,
-                                          previousUsersModels: userVisitHistory)
+                                          userModel: newUserModel)
             viewModel.coordinatorDelegate = self
             return viewModel
         }

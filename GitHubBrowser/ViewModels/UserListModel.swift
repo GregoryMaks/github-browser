@@ -13,7 +13,6 @@ import RxSwift
 class UserListModel: UserListModelType {
     
     var userModel: GithubUserModel?
-    var previousUsersModels: [GithubUserModel]?
     var listTitle: String {
         get {
             return userModel?.username ?? "GitHub users"
@@ -24,9 +23,8 @@ class UserListModel: UserListModelType {
     private var userService: GithubUserServiceType
     private var followerUsersModels: [GithubUserModel]?
     
-    required init (userService: GithubUserServiceType, userModel: GithubUserModel? = nil, previousUsersModels: [GithubUserModel]? = nil) {
+    required init (userService: GithubUserServiceType, userModel: GithubUserModel? = nil) {
         self.userModel = userModel
-        self.previousUsersModels = previousUsersModels
         
         self.userService = userService
     }
