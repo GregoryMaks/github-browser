@@ -14,9 +14,6 @@ protocol UserListModelType {
     var listTitle: String { get }
     var userModel: GithubUserModel? { get }
     
-    var userService: GithubUserServiceType { get }
-    var followerUsersModels: [GithubUserModel]? { get }
-    
     weak var coordinatorDelegate: UserListModelCoordinatorDelegate? { get set }
     
     /// - Parameter userService: point for DI
