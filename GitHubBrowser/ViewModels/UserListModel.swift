@@ -20,6 +20,7 @@ class UserListModel: UserListModelType {
     }
     
     var moreFollowersAreAvailableToLoad: Bool
+    var isDataLoading: Variable<Bool>
     
     weak var coordinatorDelegate: UserListModelCoordinatorDelegate?
     
@@ -33,6 +34,8 @@ class UserListModel: UserListModelType {
         self.userModel = userModel
         
         self.moreFollowersAreAvailableToLoad = true
+        
+        self.isDataLoading = Variable<Bool>(false)
     }
     
     func numberOfRowsInTableView () -> Int {
@@ -82,7 +85,11 @@ private extension UserListModel {
         -> Observable<([GithubUserModel], GithubUsersPagingMarkerType?)> {
         
         return Observable.create({ (observer: AnyObserver<([GithubUserModel], GithubUsersPagingMarkerType?)>) -> Disposable in
+            
+            self.isDataLoading.value = true
             self.userService.retrieveUserList(pagingMarker) { (models, pagingMarker, error) in
+                self.isDataLoading.value = false
+                
                 guard (error == nil) else {
                     observer.on(.Error(error!))
                     return

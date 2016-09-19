@@ -45,7 +45,6 @@ class GithubAllUsersService: GithubUsersServiceType {
                                 completionHandler(nil, nil, nil)
                                 return
                             }
-                            print("Received result \(rawData)")
                             
                             let models = GithubUserModel.userModelsFromRawJSONData(rawData!)
                             

@@ -20,13 +20,16 @@ class UserListViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.refreshControl = UIRefreshControl();
-        
         self.tableView.rowHeight = UITableViewAutomaticDimension;
         self.tableView.estimatedRowHeight = 100
         
         self.title = self.viewModel!.listTitle
         
+        self.viewModel!.isDataLoading.asObservable().subscribeNext { (value) in
+            self.title = self.viewModel!.listTitle + (value == true ? " (loading)" : "")
+        }
+        .addDisposableTo(self.disposeBag)
+
         self.viewModel!.updateUserList()
             .subscribe(
                 onNext: { (result) in
@@ -52,7 +55,7 @@ extension UserListViewController {
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let shouldDisplayLoadMore = self.viewModel!.moreFollowersAreAvailableToLoad
+        let shouldDisplayLoadMore = self.viewModel!.moreFollowersAreAvailableToLoad && self.viewModel!.numberOfRowsInTableView() > 0
         return self.viewModel!.numberOfRowsInTableView() + (shouldDisplayLoadMore ? 1 : 0)
     }
     
@@ -73,7 +76,14 @@ extension UserListViewController {
 extension UserListViewController {
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        guard (indexPath.row < self.viewModel!.numberOfRowsInTableView()) else {
+        if (indexPath.row < self.viewModel!.numberOfRowsInTableView()) {
+            self.viewModel!.selectRow(atIndexPath: indexPath)
+        }
+        else {
+            guard (self.viewModel!.isDataLoading.value == false) else {
+                return
+            }
+            
             self.viewModel!.loadMoreUsers()
                 .subscribe(
                     onNext: { (result) in
@@ -89,6 +99,5 @@ extension UserListViewController {
             return
         }
         
-        self.viewModel!.selectRow(atIndexPath: indexPath)
     }
 }

@@ -15,6 +15,7 @@ protocol UserListModelType {
     var userModel: GithubUserModel? { get }
     
     var moreFollowersAreAvailableToLoad: Bool { get }
+    var isDataLoading: Variable<Bool> { get }
     
     weak var coordinatorDelegate: UserListModelCoordinatorDelegate? { get set }
     

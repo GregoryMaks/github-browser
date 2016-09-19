@@ -35,7 +35,6 @@ class UserListCoordinator: NSObject, Coordinator {
         self.storyboardDIContainer!.registerForStoryboard(UserListViewController.self) { resolver, viewController in
             viewController.viewModel = resolver.resolve(UserListModelType.self)
             
-            // TODO rewrite, kingfisher for image loading??
             viewController.dependencyContainer = Container()
             viewController.dependencyContainer?.register(AsyncImageLoadingServiceType.self) {
                 _ in AsyncImageLoadingService()
@@ -45,7 +44,7 @@ class UserListCoordinator: NSObject, Coordinator {
             _ in GithubAllUsersService()
         }
         
-        // TODO: do I need it? Even if self is :NSObject
+        // TODO: do I need to weakify it here? Even if self is :NSObject
         weak var weakSelf: UserListCoordinator? = self
         self.storyboardDIContainer!.register(UserListModelType.self) { (resolver) in
             let viewModel = UserListModel(userService: resolver.resolve(GithubAllUsersService.self)!)

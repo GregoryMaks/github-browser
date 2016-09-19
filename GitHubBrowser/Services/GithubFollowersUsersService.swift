@@ -35,8 +35,10 @@ class GithubFollowersUsersService: GithubUsersServiceType {
                                 return
                             }
                             
-                            // TODO: RETRIEVE PAGING MARKER HERE
                             var pagingMarker: GithubFollowersUsersPagingMarker? = nil
+                            if let link = response.response?.headerLinks()["next"] {
+                                pagingMarker = GithubFollowersUsersPagingMarker(nextPageURL: link)
+                            }
                             
                             let rawData = response.result.value as? Array<Dictionary<String, AnyObject>>
                             guard (rawData != nil) else {
@@ -44,7 +46,6 @@ class GithubFollowersUsersService: GithubUsersServiceType {
                                 return
                             }
                             
-                            print("Received result \(rawData)")
                             let models = GithubUserModel.userModelsFromRawJSONData(rawData!)
                             completionHandler(models, pagingMarker, nil)
         }
@@ -58,5 +59,46 @@ class GithubFollowersUsersPagingMarker: GithubUsersPagingMarkerType {
     
     init (nextPageURL: NSURL?) {
         self.nextPageURL = nextPageURL
+    }
+}
+
+extension NSHTTPURLResponse {
+    
+    func headerLinks () -> [String : NSURL?] {
+        var result = [String : NSURL?]()
+        
+        // Here we are parsing links
+        // Example:
+        // <https://api.github.com/user/1/followers?page=2>; rel="next", <https://api.github.com/user/1/followers?page=656>; rel="last"
+        
+        if let rawLinksString: String = self.allHeaderFields[NSString(string: "Link") as NSObject] as? String {
+            
+            let pairs: [String] = rawLinksString.componentsSeparatedByString(",")
+            for pair in pairs {
+                
+                let valueKey: [String] = pair.componentsSeparatedByString(";")
+                guard valueKey.count == 2 else {
+                    continue
+                }
+                
+                let value = valueKey[0]
+                    .stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+                    .stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString: "<>"))
+                
+                var key = valueKey[1]
+                    .stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+                if (key.characters.startsWith("rel=".characters)) {
+                    key.removeRange(key.rangeOfString("rel=")!)
+                    key = key
+                        .stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString: "\""))
+                    
+                    key = key.stringByRemovingPercentEncoding ?? ""
+                }
+                
+                result[key] = NSURL(string: value)
+            }
+        }
+        
+        return result
     }
 }

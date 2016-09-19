@@ -8,6 +8,8 @@
 
 import UIKit
 
+/// Simplest controllable way to load an image
+// TODO rewrite, maybe user kingfisher for image loading??
 class AsyncImageLoadingService : AsyncImageLoadingServiceType {
     
     private var imageLoadingTask: NSURLSessionDataTask?

@@ -9,26 +9,6 @@
 import UIKit
 
 
-//enum GithubUsersServiceBatchSize {
-//    case Default
-//    case Custom(Int)
-//}
-
-//protocol GithubUserServiceType {
-//    
-//    func retrieveGlobalUserList (sinceId: Int?,
-//                                 itemsPerPage: GithubUserServiceBatchSize,
-//                                 completionHandler: ([GithubUserModel]?, NSError?) -> Void)
-//    
-//    func retrieveFollowersList (followersUrl: NSURL,
-//                                sinceId: Int?,
-//                                itemsPerPage: GithubUserServiceBatchSize,
-//                                completionHandler: ([GithubUserModel]?, NSError?) -> Void)
-//    
-//    func retreiveUserData (username: String,
-//                           completionHandler: (GithubUserModel?, NSError?) -> Void)
-//}
-
 protocol GithubUsersServiceType {
     
     func retrieveUserList (pagingMarker: GithubUsersPagingMarkerType?,
