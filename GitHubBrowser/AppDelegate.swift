@@ -24,17 +24,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         self.window?.makeKeyAndVisible()
         
-        // TODO test
-        let svc = GithubUserService()
-        svc.retrieveGlobalUserList(nil, itemsPerPage: GithubUserServiceBatchSize.Default) { (models, error) in
-            guard (error == nil) else {
-                print(error)
-                return
-            }
-            
-            print(models);
-        }
-        
         return true
     }
 

@@ -14,11 +14,13 @@ protocol UserListModelType {
     var listTitle: String { get }
     var userModel: GithubUserModel? { get }
     
+    var moreFollowersAreAvailableToLoad: Bool { get }
+    
     weak var coordinatorDelegate: UserListModelCoordinatorDelegate? { get set }
     
     /// - Parameter userService: point for DI
     /// - Parameter userModel: represents user whose followers we'd like to show, may be nil to show all root users
-    init (userService: GithubUserServiceType, userModel: GithubUserModel?)
+    init (userService: GithubUsersServiceType, userModel: GithubUserModel?)
     
     func numberOfRowsInTableView () -> Int
     func modelForRow (atIndexPath indexPath:NSIndexPath) -> GithubUserModel?

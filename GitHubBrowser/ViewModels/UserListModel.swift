@@ -18,15 +18,21 @@ class UserListModel: UserListModelType {
             return userModel?.username ?? "GitHub users"
         }
     }
+    
+    var moreFollowersAreAvailableToLoad: Bool
+    
     weak var coordinatorDelegate: UserListModelCoordinatorDelegate?
     
-    private var userService: GithubUserServiceType
+    private var userService: GithubUsersServiceType
+    private var userServicePagingMarker: GithubUsersPagingMarkerType?
     private var followerUsersModels: [GithubUserModel]?
     
-    required init (userService: GithubUserServiceType, userModel: GithubUserModel? = nil) {
+    
+    required init (userService: GithubUsersServiceType, userModel: GithubUserModel? = nil) {
+        self.userService = userService
         self.userModel = userModel
         
-        self.userService = userService
+        self.moreFollowersAreAvailableToLoad = true
     }
     
     func numberOfRowsInTableView () -> Int {
@@ -38,8 +44,9 @@ class UserListModel: UserListModelType {
     }
     
     func updateUserList () -> Observable<Bool> {
-        return self.retrieveUserListPart(nil, itemsPerPage: GithubUserServiceBatchSize.Default)
-            .doOnNext({ (models) in
+        return self.retrieveUserListPart(nil)
+            .doOnNext({ (models, pagingMarker) in
+                self.userServicePagingMarker = pagingMarker
                 self.followerUsersModels = models
             })
             .map({ (models) -> Bool in
@@ -48,14 +55,17 @@ class UserListModel: UserListModelType {
     }
     
     func loadMoreUsers () -> Observable<Bool> {
-        let lastUserId: Int? = self.followerUsersModels?.last?.id
-        
-        return self.retrieveUserListPart(lastUserId, itemsPerPage: GithubUserServiceBatchSize.Default)
-            .doOnNext({ (models) in
+        return self.retrieveUserListPart(self.userServicePagingMarker)
+            .doOnNext({ (models, pagingMarker) in
+                guard (models.count != 0) else {
+                    self.moreFollowersAreAvailableToLoad = false
+                    return
+                }
+                self.userServicePagingMarker = pagingMarker
                 self.followerUsersModels?.appendContentsOf(models)
             })
-            .map({ (models) -> Bool in
-                return true
+            .map({ (models, pagingMarker) -> Bool in
+                return models.count > 0
             });
     }
     
@@ -68,40 +78,22 @@ class UserListModel: UserListModelType {
 
 private extension UserListModel {
     
-    func retrieveUserListPart (sinceId: Int?, itemsPerPage: GithubUserServiceBatchSize) -> Observable<[GithubUserModel]> {
-        return Observable.create({ (observer: AnyObserver<[GithubUserModel]>) -> Disposable in
-            
-            if (self.userModel?.username == nil) {
-                self.userService.retrieveGlobalUserList(sinceId, itemsPerPage: itemsPerPage) { (models, error) in
-                    guard (error == nil) else {
-                        observer.on(.Error(error!))
-                        return
-                    }
-                    
-                    guard models != nil else {
-                        observer.on(.Error(UserListModelError.EmptyData))
-                        return
-                    }
-                    
-                    observer.on(.Next(models!))
+    func retrieveUserListPart (pagingMarker: GithubUsersPagingMarkerType?)
+        -> Observable<([GithubUserModel], GithubUsersPagingMarkerType?)> {
+        
+        return Observable.create({ (observer: AnyObserver<([GithubUserModel], GithubUsersPagingMarkerType?)>) -> Disposable in
+            self.userService.retrieveUserList(pagingMarker) { (models, pagingMarker, error) in
+                guard (error == nil) else {
+                    observer.on(.Error(error!))
+                    return
                 }
-            }
-            else {
-                self.userService.retrieveFollowersList(self.userModel!.followersLink,
-                    sinceId: sinceId,
-                    itemsPerPage: itemsPerPage,
-                    completionHandler: { (models, error) in
-                        guard (error == nil) else {
-                            observer.on(.Error(UserListModelError.InnerError(error!)))
-                            return
-                        }
-                        guard models != nil else {
-                            observer.on(.Error(UserListModelError.EmptyData))
-                            return
-                        }
-                        
-                        observer.on(.Next(models!))
-                })
+                
+                guard models != nil else {
+                    observer.on(.Error(UserListModelError.EmptyData))
+                    return
+                }
+                
+                observer.on(.Next((models!, pagingMarker)))
             }
             
             return NopDisposable.instance

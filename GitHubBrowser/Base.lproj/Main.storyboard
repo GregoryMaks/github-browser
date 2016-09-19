@@ -74,6 +74,27 @@
                                     <outlet property="usernameLabel" destination="2qQ-vs-B4k" id="9Ha-jS-FDa"/>
                                 </connections>
                             </tableViewCell>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="LoadMoreCell" rowHeight="46" id="kXR-Jk-ZUI">
+                                <rect key="frame" x="0.0" y="213" width="600" height="46"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="kXR-Jk-ZUI" id="lIM-l8-aug">
+                                    <rect key="frame" x="0.0" y="0.0" width="600" height="45"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="load more..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bd3-KN-OIH">
+                                            <rect key="frame" x="264" y="15" width="72" height="16"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="bd3-KN-OIH" firstAttribute="centerX" secondItem="lIM-l8-aug" secondAttribute="centerX" id="Mcl-X9-4yO"/>
+                                        <constraint firstAttribute="bottomMargin" secondItem="bd3-KN-OIH" secondAttribute="bottom" constant="6" id="WC2-9M-wtf"/>
+                                        <constraint firstItem="bd3-KN-OIH" firstAttribute="top" secondItem="lIM-l8-aug" secondAttribute="topMargin" constant="7" id="WCm-mI-BcX"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                            </tableViewCell>
                         </prototypes>
                         <connections>
                             <outlet property="dataSource" destination="eQP-5U-WCn" id="duj-tK-WJW"/>

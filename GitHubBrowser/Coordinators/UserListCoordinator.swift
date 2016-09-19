@@ -41,14 +41,14 @@ class UserListCoordinator: NSObject, Coordinator {
                 _ in AsyncImageLoadingService()
             }
         }
-        self.storyboardDIContainer!.register(GithubUserServiceType.self) {
-            _ in GithubUserService()
+        self.storyboardDIContainer!.register(GithubAllUsersService.self) {
+            _ in GithubAllUsersService()
         }
         
         // TODO: do I need it? Even if self is :NSObject
         weak var weakSelf: UserListCoordinator? = self
         self.storyboardDIContainer!.register(UserListModelType.self) { (resolver) in
-            let viewModel = UserListModel(userService: resolver.resolve(GithubUserServiceType.self)!)
+            let viewModel = UserListModel(userService: resolver.resolve(GithubAllUsersService.self)!)
             viewModel.coordinatorDelegate = weakSelf
             return viewModel
         }
@@ -126,8 +126,13 @@ private extension UserListCoordinator {
             // Current UserListVC will contain this user, remove it
             self.userModelsVisitHistory.removeLast()
             
-            let historyPredecessorUser = self.userModelsVisitHistory.last
-            let historyCreatedUserListVC = self.createUserListVCForNewUser(newUser: historyPredecessorUser)
+            var historyCreatedUserListVC: UserListViewController
+            if let historyPredecessorUser = self.userModelsVisitHistory.last {
+                historyCreatedUserListVC = self.createUserListVCForNewUser(newUser: historyPredecessorUser)
+            }
+            else {
+                historyCreatedUserListVC = self.createUserListVCForAllUsers()
+            }
             
             self.currentUserListVC = self.previousUserListVC;
             self.previousUserListVC = historyCreatedUserListVC;
@@ -142,13 +147,26 @@ private extension UserListCoordinator {
         self.navigationController?.setViewControllers(viewControllers, animated: false)
     }
     
-    func createUserListVCForNewUser (newUser newUserModel: GithubUserModel?) -> UserListViewController {
+    func createUserListVCForAllUsers () -> UserListViewController {
+        self.storyboardDIContainer!.register(UserListModelType.self) { (resolver) in
+            let viewModel = UserListModel(userService: resolver.resolve(GithubAllUsersService.self)!)
+            viewModel.coordinatorDelegate = self
+            return viewModel
+        }
+        
+        return self.storyboard!.instantiateViewControllerWithIdentifier("UserListViewControllerIdentifier") as! UserListViewController
+    }
+    
+    func createUserListVCForNewUser (newUser newUserModel: GithubUserModel) -> UserListViewController {
         
         self.storyboardDIContainer!.register(UserListModelType.self) { (resolver) in
-            let viewModel = UserListModel(userService: resolver.resolve(GithubUserServiceType.self)!,
+            let viewModel = UserListModel(userService: resolver.resolve(GithubFollowersUsersService.self)!,
                                           userModel: newUserModel)
             viewModel.coordinatorDelegate = self
             return viewModel
+        }
+        self.storyboardDIContainer!.register(GithubFollowersUsersService.self) {
+            _ in GithubFollowersUsersService(user: newUserModel)
         }
         
         return self.storyboard!.instantiateViewControllerWithIdentifier("UserListViewControllerIdentifier") as! UserListViewController
